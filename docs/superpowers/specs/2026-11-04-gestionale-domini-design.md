@@ -60,9 +60,9 @@ Il margine non è memorizzato: è calcolato come `prezzo_rivendita - costo_acqui
 ## 5. Ruoli e permessi
 
 - **Admin (Simone):** accesso completo, gestione utenti, import, configurazione alert.
-- **Collaboratore:** vede tutti i dati, inclusi costi, codici EPP e dati del titolare (scelta fatta). Può creare e modificare clienti e domini, ma non può gestire utenti né configurazione.
+- **Collaboratore:** vede domini, clienti, scadenze, codici EPP e dati del titolare. Non vede costi d'acquisto, prezzi di rivendita e margini. Può creare e modificare clienti e domini, ma non può gestire utenti né configurazione.
 
-Assunzione da confermare: con questa scelta, la differenza tra i due ruoli è solo nella gestione di utenti e configurazione.
+Costi e margini sono visibili solo agli admin: vanno esclusi da liste, export CSV, dettagli e API interne verso i ruoli collaboratore.
 
 ## 6. Flussi principali
 
@@ -75,7 +75,7 @@ Assunzione da confermare: con questa scelta, la differenza tra i due ruoli è so
 
 **Alert scadenza**
 1. Ogni giorno il cron calcola i giorni mancanti per ogni dominio attivo o in scadenza.
-2. Per ogni soglia raggiunta (60, 30, 15, 7) che non risulta in `alert_inviati`, invia un'email a Simone e a tutti gli admin, e crea una notifica nell'app.
+2. Per ogni soglia raggiunta (60, 30, 15, 7) che non risulta in `alert_inviati`, invia un'email a tutti gli utenti attivi e crea una notifica nell'app per ciascuno.
 3. Registra l'invio in `alert_inviati`.
 4. Se la scadenza cambia (rinnovo), le soglie vengono ricalcolate.
 
@@ -97,8 +97,9 @@ Manuale dalla scheda del dominio. Il sistema non modifica lo stato da solo.
 - Dati personali del titolare: informativa da redigere; funzione di esportazione e cancellazione dei dati di una persona.
 - Log degli accessi ai codici EPP.
 
-## 9. Domande aperte
+## 9. Decisioni prese in revisione
 
-1. Confermi che i collaboratori vedono tutti i dati e la differenza di ruolo è solo nella gestione di utenti e configurazione?
-2. Conviene un promemoria esplicito di rotazione dei codici EPP alla disattivazione di un utente?
-3. Chi riceve gli alert: solo Simone, o anche i collaboratori?
+- Costi e margini: solo admin.
+- Codici EPP e dati del titolare: visibili ai collaboratori.
+- Nessun promemoria di rotazione EPP alla disattivazione utente; la gestione resta manuale.
+- Alert: inviati a tutti gli utenti attivi.
