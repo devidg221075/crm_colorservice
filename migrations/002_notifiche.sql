@@ -9,5 +9,5 @@ CREATE TABLE notifiche (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     KEY idx_notifiche_utente (utente_id, letta),
     CONSTRAINT fk_notifiche_utente FOREIGN KEY (utente_id) REFERENCES utenti (id) ON DELETE CASCADE,
-    CONSTRAINT fk_notifiche_dominio FOREIGN KEY (dominio_id) REFERENCES domini (id) ON DELETE CASCADE
+    CONSTRAINT fk_notifiche_dominio FOREIGN KEY (dominio_id) REFERENCES domini (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

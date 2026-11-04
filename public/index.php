@@ -9,6 +9,7 @@ use App\Controllers\AuthController;
 use App\Controllers\ClientiController;
 use App\Controllers\DominiController;
 use App\Controllers\ImportController;
+use App\Controllers\NotificheController;
 use App\Router;
 
 Config::load();
@@ -44,5 +45,9 @@ $import = new ImportController();
 $router->add('GET', '/import', fn() => $import->mostra());
 $router->add('POST', '/import', fn() => $import->anteprima());
 $router->add('POST', '/import/conferma', fn() => $import->conferma());
+
+$notifiche = new NotificheController();
+$router->add('GET', '/notifiche', fn() => $notifiche->lista());
+$router->add('POST', '/notifiche/lette', fn() => $notifiche->segnaLette());
 
 $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');

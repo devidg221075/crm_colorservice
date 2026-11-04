@@ -1,0 +1,41 @@
+<?php
+/**
+ * Layout condiviso. Variabili attese: $titolo (string), $contenuto (HTML gia' pronto e sicuro).
+ */
+use App\Auth;
+use App\Config;
+use App\Csrf;
+use App\Repos\NotificaRepo;
+
+$h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+$utenteLayout = Auth::user();
+?>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?= $h((string) $titolo) ?> - <?= $h((string) Config::get('app.nome')) ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<?php if ($utenteLayout !== null): ?>
+    <nav class="navbar navbar-dark bg-dark px-3">
+        <span class="navbar-brand"><?= $h((string) Config::get('app.nome')) ?></span>
+        <div class="d-flex align-items-center gap-2">
+            <?php
+            $nonLette = count((new NotificaRepo())->nonLette($utenteLayout['id']));
+            require __DIR__ . '/partials/campanella.php';
+            ?>
+            <form method="post" action="/logout" class="m-0">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn btn-outline-light btn-sm">Esci</button>
+            </form>
+        </div>
+    </nav>
+<?php endif; ?>
+    <main class="container py-4">
+        <?= $contenuto ?>
+    </main>
+</body>
+</html>
