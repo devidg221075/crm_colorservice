@@ -1,0 +1,4 @@
+vendor/
+config/local.php
+.phpunit.cache/
+.phpunit.result.cache
