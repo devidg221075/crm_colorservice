@@ -18,11 +18,17 @@ final class Auth
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
-            'secure' => !empty($_SERVER['HTTPS']),
+            'secure' => self::cookieSecure(),
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
         session_start();
+    }
+
+    /** Cookie 'secure' se la richiesta e' HTTPS, o se forzato da config (app.cookie_secure) dietro proxy TLS. */
+    public static function cookieSecure(): bool
+    {
+        return !empty($_SERVER['HTTPS']) || Config::get('app.cookie_secure', false) === true;
     }
 
     public static function attempt(string $email, string $password): bool

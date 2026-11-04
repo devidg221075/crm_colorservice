@@ -14,6 +14,8 @@ final class Config
         $base = is_file($dir . '/app.php') ? require $dir . '/app.php' : [];
         $local = is_file($dir . '/local.php') ? require $dir . '/local.php' : [];
         self::$data = array_replace_recursive($base, $local);
+        // Fuso unico per web e cron: "oggi" deve coincidere ovunque.
+        date_default_timezone_set((string) (self::$data['app']['timezone'] ?? 'Europe/Rome'));
     }
 
     public static function get(string $key, mixed $default = null): mixed

@@ -4,6 +4,9 @@ return [
     'app' => [
         'nome' => 'Gestionale domini',
         'base_url' => '',
+        'timezone' => 'Europe/Rome',
+        // true se l'app sta dietro un proxy TLS e $_SERVER['HTTPS'] resta vuoto.
+        'cookie_secure' => false,
     ],
     'mail' => [
         'from' => 'noreply@localhost',
