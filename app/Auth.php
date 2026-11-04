@@ -28,7 +28,9 @@ final class Auth
     public static function attempt(string $email, string $password): bool
     {
         $u = (new UtenteRepo())->trovaAttivoPerEmail(trim($email));
-        if ($u === null || !password_verify($password, $u['password_hash'])) {
+        // Verifica sempre, anche con hash fittizio, per non rivelare via timing quali email esistono.
+        $ok = password_verify($password, $u['password_hash'] ?? self::dummyHash());
+        if ($u === null || !$ok) {
             return false;
         }
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -36,6 +38,12 @@ final class Auth
         }
         $_SESSION['utente_id'] = (int) $u['id'];
         return true;
+    }
+
+    private static function dummyHash(): string
+    {
+        static $hash = null;
+        return $hash ??= password_hash('x', PASSWORD_DEFAULT);
     }
 
     /** Utente corrente (id, nome, ruolo) o null; rilegge il DB cosi' disattivazioni e cambi ruolo valgono subito. */
@@ -71,8 +79,11 @@ final class Auth
     /** Lancia HttpException 403 se il ruolo non corrisponde. */
     public static function requireRole(string $ruolo): void
     {
-        self::requireLogin();
-        if (self::user()['ruolo'] !== $ruolo) {
+        $u = self::user();
+        if ($u === null) {
+            throw new HttpException(401, 'Accesso richiesto');
+        }
+        if ($u['ruolo'] !== $ruolo) {
             throw new HttpException(403, 'Accesso negato');
         }
     }

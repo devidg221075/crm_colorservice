@@ -107,4 +107,25 @@ final class AuthTest extends TestCase
         $this->assertFalse(Csrf::check('altro'));
         $this->assertFalse(Csrf::check(''));
     }
+
+    public function test_email_sconosciuta_non_genera_errori_e_ritorna_false(): void
+    {
+        $this->assertFalse(Auth::attempt('fantasma@example.test', 'qualsiasi'));
+        $this->assertFalse(Auth::attempt('off@example.test', 'qualsiasi'));
+    }
+
+    public function test_cambio_ruolo_dopo_login_viene_applicato(): void
+    {
+        Auth::attempt('simone@example.test', 'segreta');
+        Auth::requireRole('admin');
+        Db::pdo()->exec("UPDATE utenti SET ruolo = 'collaboratore' WHERE email = 'simone@example.test'");
+        $this->expectHttpStatus(403, fn() => Auth::requireRole('admin'));
+    }
+
+    public function test_requireRole_utente_disattivato_dopo_login_da_401(): void
+    {
+        Auth::attempt('simone@example.test', 'segreta');
+        Db::pdo()->exec("UPDATE utenti SET attivo = 0 WHERE email = 'simone@example.test'");
+        $this->expectHttpStatus(401, fn() => Auth::requireRole('admin'));
+    }
 }
