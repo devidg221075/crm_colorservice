@@ -5,6 +5,9 @@ return [
         'nome' => 'Gestionale domini',
         'base_url' => '',
     ],
+    'mail' => [
+        'from' => 'noreply@localhost',
+    ],
     'db' => [
         'driver' => 'mysql',
         'dsn' => 'mysql:host=localhost;dbname=gestionale;charset=utf8mb4',

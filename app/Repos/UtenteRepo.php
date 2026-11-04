@@ -21,4 +21,10 @@ final class UtenteRepo
         $st->execute([$id]);
         return $st->fetch() ?: null;
     }
+
+    /** Tutti gli utenti attivi (destinatari degli alert). */
+    public function elencoAttivi(): array
+    {
+        return Db::pdo()->query('SELECT id, nome, email FROM utenti WHERE attivo = 1 ORDER BY id')->fetchAll();
+    }
 }
