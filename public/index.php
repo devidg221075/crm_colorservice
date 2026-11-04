@@ -7,6 +7,7 @@ use App\Auth;
 use App\Config;
 use App\Controllers\AuthController;
 use App\Controllers\ClientiController;
+use App\Controllers\DominiController;
 use App\Router;
 
 Config::load();
@@ -28,5 +29,14 @@ $router->add('GET', '/clienti/nuovo', fn() => $clienti->nuovo());
 $router->add('POST', '/clienti', fn() => $clienti->crea());
 $router->add('GET', '/clienti/{id}/modifica', fn(string $id) => $clienti->modifica($id));
 $router->add('POST', '/clienti/{id}', fn(string $id) => $clienti->aggiorna($id));
+
+$domini = new DominiController();
+$router->add('GET', '/domini', fn() => $domini->lista());
+$router->add('GET', '/domini/nuovo', fn() => $domini->nuovo());
+$router->add('POST', '/domini', fn() => $domini->crea());
+$router->add('GET', '/domini/{id}', fn(string $id) => $domini->scheda($id));
+$router->add('GET', '/domini/{id}/modifica', fn(string $id) => $domini->modifica($id));
+$router->add('GET', '/domini/{id}/margine', fn(string $id) => $domini->margine($id));
+$router->add('POST', '/domini/{id}', fn(string $id) => $domini->aggiorna($id));
 
 $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');
