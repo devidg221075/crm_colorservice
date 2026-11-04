@@ -17,6 +17,15 @@ final class TitolareRepo
         return $st->fetch() ?: null;
     }
 
+    /** Tutti i titolari con quell'email (confronto senza distinzione di maiuscole), ordinati per id. */
+    public function findByEmail(string $email): array
+    {
+        $st = Db::pdo()->prepare('SELECT id, dominio_id, ragione_sociale, cf_piva, indirizzo, pec, email, telefono
+            FROM titolari WHERE LOWER(email) = ? ORDER BY id');
+        $st->execute([mb_strtolower(trim($email), 'UTF-8')]);
+        return $st->fetchAll();
+    }
+
     /** Un titolare per dominio: aggiorna quello esistente oppure lo crea. */
     public function salva(int $dominioId, array $dati): void
     {

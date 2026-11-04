@@ -10,6 +10,7 @@ use App\Controllers\ClientiController;
 use App\Controllers\DominiController;
 use App\Controllers\ImportController;
 use App\Controllers\NotificheController;
+use App\Controllers\PrivacyController;
 use App\Router;
 
 Config::load();
@@ -49,5 +50,10 @@ $router->add('POST', '/import/conferma', fn() => $import->conferma());
 $notifiche = new NotificheController();
 $router->add('GET', '/notifiche', fn() => $notifiche->lista());
 $router->add('POST', '/notifiche/lette', fn() => $notifiche->segnaLette());
+
+$privacy = new PrivacyController();
+$router->add('GET', '/privacy', fn() => $privacy->mostra());
+$router->add('POST', '/privacy/cerca', fn() => $privacy->cerca());
+$router->add('POST', '/privacy/cancella', fn() => $privacy->cancella());
 
 $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');
