@@ -9,6 +9,12 @@ final class Db
 {
     private static ?PDO $pdo = null;
 
+    /** Sostituisce la connessione (usato dai test); null la azzera. */
+    public static function setPdo(?PDO $pdo): void
+    {
+        self::$pdo = $pdo;
+    }
+
     public static function pdo(): PDO
     {
         if (self::$pdo === null) {

@@ -25,6 +25,15 @@ final class Router
             echo 'Pagina non trovata';
             return;
         }
-        $handler();
+        try {
+            $handler();
+        } catch (HttpException $e) {
+            if ($e->status === 401) {
+                header('Location: /login');
+                return;
+            }
+            http_response_code($e->status);
+            echo htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+        }
     }
 }
