@@ -64,4 +64,17 @@ final class DeployTest extends TestCase
         $this->assertStringContainsString('integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"', $c);
         $this->assertStringContainsString('crossorigin="anonymous"', $c);
     }
+
+    public function test_deploy_guide_dice_php_8_2(): void
+    {
+        $c = (string) file_get_contents($this->root . '/docs/deploy.md');
+        $this->assertStringContainsString('PHP 8.2 o superiore', $c);
+        $this->assertStringNotContainsString('8.1', $c);
+    }
+
+    public function test_front_controller_nasconde_gli_errori(): void
+    {
+        $c = (string) file_get_contents($this->root . '/public/index.php');
+        $this->assertStringContainsString("ini_set('display_errors', '0')", $c);
+    }
 }

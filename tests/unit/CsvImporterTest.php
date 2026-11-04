@@ -99,4 +99,15 @@ final class CsvImporterTest extends TestCase
         $this->assertSame([], $p->nuovi);
         $this->assertArrayHasKey(1, $p->errori);
     }
+
+    public function test_nome_non_valido_va_negli_errori_senza_bloccare_il_resto(): void
+    {
+        $f = tempnam(sys_get_temp_dir(), 'csv');
+        file_put_contents($f, "nome;data_scadenza\nbuono.it;31/12/2026\nnon valido.it;31/12/2026\nnl\"\n;31/12/2026\nultimo.it;31/12/2027\n");
+        $p = CsvImporter::parse($f, 'aruba');
+        unlink($f);
+        $this->assertSame(['buono.it', 'ultimo.it'], array_column($p->nuovi, 'nome'));
+        $this->assertArrayHasKey(3, $p->errori);
+        $this->assertStringContainsString('non valido', $p->errori[3]);
+    }
 }

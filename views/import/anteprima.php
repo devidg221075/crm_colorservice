@@ -16,8 +16,8 @@ $titolo = 'Import domini';
     <?php elseif ($anteprima !== null): ?>
         <p>File: <?= $h($anteprima->file) ?> (provider: <?= $h($anteprima->provider) ?>)</p>
         <p>Nuovi: <?= count($anteprima->nuovi) ?> | Da aggiornare: <?= count($anteprima->aggiornati) ?> | Errori: <?= count($anteprima->errori) ?></p>
-        <?php foreach ([['Nuovi domini', $anteprima->nuovi], ['Domini da aggiornare', $anteprima->aggiornati]] as [$titolo, $righe]): ?>
-            <h2><?= $h($titolo) ?></h2>
+        <?php foreach ([['Nuovi domini', $anteprima->nuovi], ['Domini da aggiornare', $anteprima->aggiornati]] as [$titoloSezione, $righe]): ?>
+            <h2><?= $h($titoloSezione) ?></h2>
             <?php if ($righe === []): ?>
                 <p>Nessuno.</p>
             <?php else: ?>

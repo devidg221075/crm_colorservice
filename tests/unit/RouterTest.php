@@ -28,4 +28,43 @@ final class RouterTest extends TestCase
         $r->dispatch('GET', '/clienti/nuovo');
         $this->assertSame('nuovo', $chiamata);
     }
+
+    public function test_eccezione_generica_da_500_senza_messaggio(): void
+    {
+        $log = tempnam(sys_get_temp_dir(), 'log');
+        $vecchio = ini_set('error_log', $log);
+        $r = new Router();
+        $r->add('GET', '/boom', function (): void {
+            throw new \RuntimeException('SQLSTATE mysql:host=db.interno password=segreta');
+        });
+        ob_start();
+        try {
+            $r->dispatch('GET', '/boom');
+        } finally {
+            $out = (string) ob_get_clean();
+            ini_set('error_log', (string) $vecchio);
+        }
+        $this->assertSame(500, http_response_code());
+        http_response_code(200);
+        $this->assertStringNotContainsString('SQLSTATE', $out);
+        $this->assertStringNotContainsString('segreta', $out);
+        $this->assertStringNotContainsString('RuntimeException', $out);
+        $this->assertStringContainsString('Errore', $out);
+        $this->assertStringContainsString('SQLSTATE', (string) file_get_contents($log));
+        unlink($log);
+    }
+
+    public function test_http_exception_mantiene_lo_stato(): void
+    {
+        $r = new Router();
+        $r->add('GET', '/vietato', function (): void {
+            throw new \App\HttpException(403, 'Accesso negato');
+        });
+        ob_start();
+        $r->dispatch('GET', '/vietato');
+        $out = (string) ob_get_clean();
+        $this->assertSame(403, http_response_code());
+        http_response_code(200);
+        $this->assertSame('Accesso negato', $out);
+    }
 }

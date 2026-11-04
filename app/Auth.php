@@ -22,6 +22,7 @@ final class Auth
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
+        ini_set('session.use_strict_mode', '1');
         session_start();
     }
 
@@ -42,6 +43,7 @@ final class Auth
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
+        unset($_SESSION['csrf']); // nuovo token dopo il login
         $_SESSION['utente_id'] = (int) $u['id'];
         return true;
     }

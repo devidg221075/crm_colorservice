@@ -224,4 +224,19 @@ final class DominiControllerTest extends TestCase
         $this->assertStringNotContainsString('<script>x', $html);
         $this->assertStringContainsString('&lt;script&gt;', $html);
     }
+
+    public function test_errore_nel_salvataggio_titolare_non_lascia_il_dominio(): void
+    {
+        $this->loginComeAdmin();
+        Db::pdo()->exec('DROP TABLE titolari');
+        $_POST = ['csrf' => Csrf::token(), 'nome' => 'transazione.it', 'provider' => 'aruba', 'stato' => 'attivo',
+            'titolare_ragione_sociale' => 'X Srl'];
+        try {
+            $this->html(fn() => (new DominiController())->crea());
+            $this->fail('Attesa eccezione');
+        } catch (\PDOException) {
+        }
+        $this->assertSame(0, (int) Db::pdo()->query("SELECT COUNT(*) FROM domini WHERE nome = 'transazione.it'")->fetchColumn());
+        $this->assertFalse(Db::pdo()->inTransaction());
+    }
 }

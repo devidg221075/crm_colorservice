@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Csrf;
+use App\Db;
 use App\HttpException;
 use App\View;
 use App\Repos\ClienteRepo;
@@ -116,17 +117,29 @@ final class DominiController
             $this->mostraForm($dati, $titolare, $errori, null);
             return;
         }
+        // Dominio e titolare vengono salvati insieme o per niente.
+        $pdo = Db::pdo();
+        $pdo->beginTransaction();
         try {
-            $salvato = $this->repo->save($dati);
-        } catch (PDOException $e) {
-            if ($e->getCode() !== '23000') {
-                throw $e;
+            try {
+                $salvato = $this->repo->save($dati);
+            } catch (PDOException $e) {
+                if ($e->getCode() !== '23000') {
+                    throw $e;
+                }
+                $pdo->rollBack();
+                http_response_code(422);
+                $this->mostraForm($dati, $titolare, ['Esiste gia\' un dominio con questo nome.'], null);
+                return;
             }
-            http_response_code(422);
-            $this->mostraForm($dati, $titolare, ['Esiste gia\' un dominio con questo nome.'], null);
-            return;
+            $this->titolari->salva($salvato, $titolare);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
         }
-        $this->titolari->salva($salvato, $titolare);
         header('Location: /domini/' . $salvato);
     }
 

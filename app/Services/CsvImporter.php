@@ -65,6 +65,10 @@ final class CsvImporter
                     $p->errori[$riga] = 'Nome dominio mancante.';
                     continue;
                 }
+                if (NomeDominio::errore($nome) !== null) {
+                    $p->errori[$riga] = 'Nome dominio non valido: ' . mb_substr(preg_replace('/[\x00-\x1f\x7f]+/u', ' ', $nome) ?? '', 0, 80, 'UTF-8') . '.';
+                    continue;
+                }
                 $scad = self::data((string) ($r[$idx['data_scadenza']] ?? ''));
                 if ($scad === null || $scad === false) {
                     $p->errori[$riga] = "Data di scadenza " . ($scad === null ? 'mancante' : 'non valida') . " per $nome.";

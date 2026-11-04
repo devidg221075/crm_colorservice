@@ -109,6 +109,8 @@ final class DominioRepo
             $errori[] = 'Il nome del dominio e\' obbligatorio.';
         } elseif (mb_strlen($nome, 'UTF-8') > 253) {
             $errori[] = 'Il nome del dominio non puo\' superare 253 caratteri.';
+        } elseif (($e = NomeDominio::errore($nome)) !== null) {
+            $errori[] = $e;
         }
         if (!in_array($dati['provider'] ?? '', self::PROVIDER, true)) {
             $errori[] = 'Provider non valido.';

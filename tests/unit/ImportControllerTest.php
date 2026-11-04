@@ -117,4 +117,35 @@ final class ImportControllerTest extends TestCase
         $this->assertSame(422, http_response_code());
         $this->assertStringContainsString('solo file .csv', $out);
     }
+
+    public function test_titolo_pagina_anteprima(): void
+    {
+        $_SESSION = ['utente_id' => 1];
+        $_POST = ['csrf' => Csrf::token(), 'provider' => 'aruba'];
+        $_FILES = ['file' => ['name' => 'a.csv', 'tmp_name' => __DIR__ . '/../fixtures/aruba_sample.csv', 'error' => UPLOAD_ERR_OK, 'size' => 10]];
+        $out = $this->html(fn() => (new ImportController())->anteprima());
+        $_FILES = [];
+        $this->assertStringContainsString('<title>Import domini - ', $out);
+    }
+
+    public function test_applica_fallita_mostra_messaggio_e_conserva_anteprima(): void
+    {
+        $prev = CsvImporter::parse(__DIR__ . '/../fixtures/aruba_sample.csv', 'aruba')->toArray();
+        $_SESSION = ['utente_id' => 1, 'import_preview' => $prev];
+        $_POST['csrf'] = Csrf::token();
+        $this->pdo->exec('DROP TABLE import_log'); // l'applica fallisce e deve annullare tutto
+        $log = tempnam(sys_get_temp_dir(), 'log');
+        $vecchio = ini_set('error_log', $log);
+        try {
+            $out = $this->html(fn() => (new ImportController())->conferma());
+        } finally {
+            ini_set('error_log', (string) $vecchio);
+            unlink($log);
+        }
+        $this->assertStringContainsString('Import non riuscito, nessuna modifica salvata.', $out);
+        $this->assertStringNotContainsString('import_log', $out);
+        $this->assertSame($prev, $_SESSION['import_preview']);
+        $this->assertSame(0, (int) $this->pdo->query('SELECT COUNT(*) FROM domini')->fetchColumn());
+        $this->assertStringContainsString('action="/import/conferma"', $out); // si puo' riprovare
+    }
 }

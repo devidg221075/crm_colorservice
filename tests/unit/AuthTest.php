@@ -128,4 +128,11 @@ final class AuthTest extends TestCase
         Db::pdo()->exec("UPDATE utenti SET attivo = 0 WHERE email = 'simone@example.test'");
         $this->expectHttpStatus(401, fn() => Auth::requireRole('admin'));
     }
+
+    public function test_token_csrf_cambia_dopo_il_login(): void
+    {
+        $prima = Csrf::token();
+        $this->assertTrue(Auth::attempt('simone@example.test', 'segreta'));
+        $this->assertNotSame($prima, Csrf::token());
+    }
 }

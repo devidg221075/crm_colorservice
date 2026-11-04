@@ -1,6 +1,6 @@
 # Installazione su hosting condiviso
 
-Guida passo passo per mettere online il gestionale domini. Servono: PHP 8.1 o superiore con estensione PDO MySQL, un database MySQL/MariaDB, Apache con `mod_rewrite`, accesso SSH o un pannello con "Cron job".
+Guida passo passo per mettere online il gestionale domini. Servono: PHP 8.2 o superiore con estensione PDO MySQL, un database MySQL/MariaDB, Apache con `mod_rewrite`, accesso SSH o un pannello con "Cron job".
 
 ## 1. Caricare i file
 

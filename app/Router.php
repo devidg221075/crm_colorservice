@@ -38,6 +38,8 @@ final class Router
             }
             http_response_code($e->status);
             echo htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+        } catch (\Throwable $e) {
+            Errore500::mostra($e);
         }
     }
 

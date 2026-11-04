@@ -70,8 +70,17 @@ final class ImportController
             $this->render(null, null, ['Nessuna anteprima da confermare: carica di nuovo il file.']);
             return;
         }
-        unset($_SESSION['import_preview']); // una conferma vale una volta sola
-        $esito = CsvImporter::applica(ImportPreview::fromArray($raw), (int) (Auth::user()['id'] ?? 0));
+        $anteprima = ImportPreview::fromArray($raw);
+        try {
+            $esito = CsvImporter::applica($anteprima, (int) (Auth::user()['id'] ?? 0));
+        } catch (Throwable $e) {
+            error_log('Import non riuscito: ' . $e::class . ': ' . $e->getMessage());
+            http_response_code(500);
+            // L'anteprima resta in sessione: si puo' riprovare.
+            $this->render($anteprima, null, ['Import non riuscito, nessuna modifica salvata.']);
+            return;
+        }
+        unset($_SESSION['import_preview']); // una conferma riuscita vale una volta sola
         $this->render(null, $esito, []);
     }
 
