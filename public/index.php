@@ -8,6 +8,7 @@ use App\Config;
 use App\Controllers\AuthController;
 use App\Controllers\ClientiController;
 use App\Controllers\DominiController;
+use App\Controllers\ImportController;
 use App\Router;
 
 Config::load();
@@ -38,5 +39,10 @@ $router->add('GET', '/domini/{id}', fn(string $id) => $domini->scheda($id));
 $router->add('GET', '/domini/{id}/modifica', fn(string $id) => $domini->modifica($id));
 $router->add('GET', '/domini/{id}/margine', fn(string $id) => $domini->margine($id));
 $router->add('POST', '/domini/{id}', fn(string $id) => $domini->aggiorna($id));
+
+$import = new ImportController();
+$router->add('GET', '/import', fn() => $import->mostra());
+$router->add('POST', '/import', fn() => $import->anteprima());
+$router->add('POST', '/import/conferma', fn() => $import->conferma());
 
 $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');
