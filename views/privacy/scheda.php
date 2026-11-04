@@ -13,7 +13,11 @@ $campi = ['ragione_sociale' => 'Ragione sociale', 'cf_piva' => 'CF / P.IVA', 'in
     <?php endforeach; ?>
 
     <?php if ($esito !== null): ?>
-        <p><?= (int) $esito ?> titolari anonimizzati. I domini collegati sono stati conservati.</p>
+        <?php if ((int) $esito === 0): ?>
+            <p>Nessun titolare trovato.</p>
+        <?php else: ?>
+            <p><?= (int) $esito ?> titolari anonimizzati. I domini collegati sono stati conservati.</p>
+        <?php endif; ?>
     <?php endif; ?>
 
     <form method="post" action="/privacy/cerca">

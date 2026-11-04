@@ -22,6 +22,14 @@ $utenteLayout = Auth::user();
 <?php if ($utenteLayout !== null): ?>
     <nav class="navbar navbar-dark bg-dark px-3">
         <span class="navbar-brand"><?= $h((string) Config::get('app.nome')) ?></span>
+        <ul class="navbar-nav flex-row gap-3 me-auto ms-3">
+            <li class="nav-item"><a class="nav-link" href="/clienti">Clienti</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domini">Domini</a></li>
+            <?php if ($utenteLayout['ruolo'] === 'admin'): ?>
+                <li class="nav-item"><a class="nav-link" href="/import">Import</a></li>
+                <li class="nav-item"><a class="nav-link" href="/privacy">Privacy</a></li>
+            <?php endif; ?>
+        </ul>
         <div class="d-flex align-items-center gap-2">
             <?php
             $nonLette = count((new NotificaRepo())->nonLette($utenteLayout['id']));

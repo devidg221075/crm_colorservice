@@ -12,6 +12,7 @@ use App\HttpException;
 use App\Repos\DominioRepo;
 use App\Repos\TitolareRepo;
 use App\Services\PrivacyService;
+use App\View;
 use PDO;
 use PHPUnit\Framework\TestCase;
 
@@ -191,5 +192,37 @@ final class PrivacyServiceTest extends TestCase
         $this->assertStringContainsString('2 titolari anonimizzati', $out);
         $this->assertSame([], $this->titolari->findByEmail('mario@example.test'));
         $this->assertSame(1, (int) $this->pdo->query('SELECT utente_id FROM import_log')->fetchColumn());
+    }
+
+    public function test_menu_admin_vede_import_e_privacy(): void
+    {
+        $_SESSION = ['utente_id' => 1];
+        $out = $this->html(fn() => (new PrivacyController())->mostra());
+        foreach (['/clienti', '/domini', '/import', '/privacy'] as $href) {
+            $this->assertStringContainsString('href="' . $href . '"', $out);
+        }
+        $this->assertStringContainsString('action="/logout"', $out);
+        $this->assertStringContainsString('href="/notifiche"', $out);
+    }
+
+    public function test_menu_collaboratore_non_vede_import_e_privacy(): void
+    {
+        $_SESSION = ['utente_id' => 2];
+        $out = $this->html(fn() => View::render('import/anteprima', ['anteprima' => null, 'esito' => null, 'errori' => []]));
+        foreach (['/clienti', '/domini'] as $href) {
+            $this->assertStringContainsString('href="' . $href . '"', $out);
+        }
+        $this->assertStringNotContainsString('href="/import"', $out);
+        $this->assertStringNotContainsString('href="/privacy"', $out);
+        $this->assertStringContainsString('action="/logout"', $out);
+    }
+
+    public function test_cancella_confermata_senza_corrispondenze(): void
+    {
+        $_SESSION = ['utente_id' => 1];
+        $_POST = ['csrf' => Csrf::token(), 'email' => 'nessuno@example.test', 'conferma' => 'CANCELLA'];
+        $out = $this->html(fn() => (new PrivacyController())->cancella());
+        $this->assertStringContainsString('Nessun titolare trovato', $out);
+        $this->assertStringNotContainsString('anonimizzati', $out);
     }
 }
