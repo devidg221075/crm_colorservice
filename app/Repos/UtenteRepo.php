@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Repos;
 
 use App\Db;
+use PDO;
 
 final class UtenteRepo
 {
@@ -69,6 +70,10 @@ final class UtenteRepo
         try {
             $diventaAdminAttivo = $dati['ruolo'] === 'admin' && (int) $dati['attivo'] === 1;
             if (!$diventaAdminAttivo) {
+                if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
+                    // Blocca le righe degli admin attivi: riduce la race tra due modifiche concorrenti su InnoDB.
+                    $pdo->query("SELECT id FROM utenti WHERE ruolo = 'admin' AND attivo = 1 FOR UPDATE")->fetchAll();
+                }
                 $st = $pdo->prepare("SELECT COUNT(*) FROM utenti WHERE ruolo = 'admin' AND attivo = 1 AND id <> ?");
                 $st->execute([$id]);
                 if ((int) $st->fetchColumn() === 0) {

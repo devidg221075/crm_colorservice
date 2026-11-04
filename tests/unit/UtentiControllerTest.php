@@ -315,4 +315,47 @@ final class UtentiControllerTest extends TestCase
         $this->assertStringNotContainsString('href="/utenti"', $out);
         $this->assertStringContainsString('href="/clienti"', $out);
     }
+
+    public function test_csrf_errato_su_id_sconosciuto_da_400_non_404(): void
+    {
+        $_POST = $this->valido(['csrf' => 'sbagliato']);
+        $this->html(fn() => (new UtentiController())->aggiorna('999'));
+        $this->assertSame(400, http_response_code());
+    }
+
+    /** @return array<string, array{0: string}> */
+    public static function percorsiScrittura(): array
+    {
+        return ['crea' => ['crea'], 'modifica' => ['aggiorna']];
+    }
+
+    #[DataProvider('percorsiScrittura')]
+    public function test_password_non_finisce_nel_log_se_il_db_fallisce(string $azione): void
+    {
+        $segreta = 'SuperSegreta-xyz-987';
+        $this->pdo->exec("CREATE TRIGGER blocca_i BEFORE INSERT ON utenti BEGIN SELECT RAISE(ABORT, 'boom'); END");
+        $this->pdo->exec("CREATE TRIGGER blocca_u BEFORE UPDATE ON utenti BEGIN SELECT RAISE(ABORT, 'boom'); END");
+        $log = tempnam(sys_get_temp_dir(), 'errlog');
+        $vecchioLog = ini_set('error_log', $log);
+        $vecchioArgs = ini_set('zend.exception_ignore_args', '0');
+        try {
+            $this->post($this->valido(['password' => $segreta, 'email' => $azione === 'crea' ? 'nuovo2@example.test' : 'collab@example.test']));
+            try {
+                $this->html(fn() => $azione === 'crea'
+                    ? (new UtentiController())->crea()
+                    : (new UtentiController())->aggiorna('2'));
+                $this->fail('Atteso PDOException');
+            } catch (\PDOException $e) {
+                $this->html(fn() => \App\Errore500::mostra($e));
+            }
+            $testo = (string) file_get_contents($log);
+            $this->assertStringContainsString('PDOException', $testo);
+            $this->assertStringNotContainsString($segreta, $testo);
+            $this->assertStringNotContainsString(substr($segreta, 0, 8), $testo);
+        } finally {
+            ini_set('error_log', (string) $vecchioLog);
+            ini_set('zend.exception_ignore_args', (string) $vecchioArgs);
+            @unlink($log);
+        }
+    }
 }

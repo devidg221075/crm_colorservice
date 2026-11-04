@@ -57,18 +57,19 @@ final class UtentiController
 
     private function salva(?int $id): void
     {
-        if ($id !== null && $this->repo->trova($id) === null) {
-            $this->nonTrovato();
-            return;
-        }
         $dati = $this->daPost($id);
         if (!Csrf::check((string) ($_POST['csrf'] ?? ''))) {
             http_response_code(400);
             $this->mostraForm($dati, ['Sessione scaduta, riprova.']);
             return;
         }
+        if ($id !== null && $this->repo->trova($id) === null) {
+            $this->nonTrovato();
+            return;
+        }
+        // Il testo in chiaro resta solo in funzioni che non toccano il DB (niente password nei backtrace).
         $password = (string) ($_POST['password'] ?? '');
-        $errori = $this->valida($dati, $password, $id);
+        $errori = array_merge($this->erroriPassword($password, $id === null), $this->valida($dati, $id));
         if ($errori === [] && $id !== null) {
             $errori = $this->guardie($id, $dati);
         }
@@ -77,7 +78,7 @@ final class UtentiController
             $this->mostraForm($dati, $errori);
             return;
         }
-        $hash = $password !== '' ? password_hash($password, PASSWORD_DEFAULT) : null;
+        $hash = $this->calcolaHash($password);
         try {
             if ($id === null) {
                 $this->repo->crea($dati, (string) $hash);
@@ -100,7 +101,7 @@ final class UtentiController
     }
 
     /** @return string[] */
-    private function valida(array $d, string $password, ?int $id): array
+    private function valida(array $d, ?int $id): array
     {
         $e = [];
         if ($d['nome'] === '') {
@@ -119,12 +120,24 @@ final class UtentiController
         if (!in_array($d['ruolo'], Auth::RUOLI, true)) {
             $e[] = 'Ruolo non valido.';
         }
-        if ($id === null && $password === '') {
-            $e[] = 'La password e\' obbligatoria.';
-        } elseif ($password !== '' && mb_strlen($password) < self::PASSWORD_MIN) {
-            $e[] = 'La password deve avere almeno ' . self::PASSWORD_MIN . ' caratteri.';
-        }
         return $e;
+    }
+
+    /** @return string[] */
+    private function erroriPassword(#[\SensitiveParameter] string $password, bool $obbligatoria): array
+    {
+        if ($obbligatoria && $password === '') {
+            return ['La password e\' obbligatoria.'];
+        }
+        if ($password !== '' && mb_strlen($password) < self::PASSWORD_MIN) {
+            return ['La password deve avere almeno ' . self::PASSWORD_MIN . ' caratteri.'];
+        }
+        return [];
+    }
+
+    private function calcolaHash(#[\SensitiveParameter] string $password): ?string
+    {
+        return $password !== '' ? password_hash($password, PASSWORD_DEFAULT) : null;
     }
 
     /** @return string[] */
