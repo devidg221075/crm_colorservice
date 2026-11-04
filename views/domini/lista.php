@@ -3,21 +3,13 @@
 /** @var array $clienti */
 /** @var array $filtri */
 /** @var bool $admin */
-use App\Config;
 use App\Repos\DominioRepo;
 use App\Services\Stato;
 
 $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 $euro = static fn(mixed $v): string => $v === null ? '-' : number_format((float) $v, 2, ',', '.') . ' EUR';
+$titolo = 'Domini';
 ?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Domini - <?= $h((string) Config::get('app.nome')) ?></title>
-</head>
-<body>
     <h1>Domini</h1>
     <p><a href="/domini/nuovo">Nuovo dominio</a></p>
     <form method="get" action="/domini">
@@ -70,5 +62,3 @@ $euro = static fn(mixed $v): string => $v === null ? '-' : number_format((float)
             </tbody>
         </table>
     <?php endif; ?>
-</body>
-</html>

@@ -1,18 +1,10 @@
 <?php
 /** @var ?\App\Services\ImportPreview $anteprima @var ?array $esito @var string[] $errori */
-use App\Config;
 use App\Csrf;
 
 $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+$titolo = 'Import domini';
 ?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Import domini - <?= $h((string) Config::get('app.nome')) ?></title>
-</head>
-<body>
     <h1>Import domini da CSV</h1>
     <?php foreach ($errori as $e): ?>
         <p role="alert"><?= $h($e) ?></p>
@@ -74,5 +66,3 @@ $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
             <button type="submit">Carica e mostra anteprima</button>
         </form>
     <?php endif; ?>
-</body>
-</html>

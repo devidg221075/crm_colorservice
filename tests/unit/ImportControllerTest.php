@@ -36,6 +36,9 @@ final class ImportControllerTest extends TestCase
         $this->pdo->exec("CREATE TABLE import_log (id INTEGER PRIMARY KEY AUTOINCREMENT, utente_id INTEGER NULL,
             tipo TEXT NOT NULL DEFAULT 'import', file TEXT NOT NULL, data TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             righe_ok INTEGER NOT NULL DEFAULT 0, righe_errore INTEGER NOT NULL DEFAULT 0)");
+        $this->pdo->exec('CREATE TABLE notifiche (id INTEGER PRIMARY KEY AUTOINCREMENT, utente_id INTEGER NOT NULL,
+            testo TEXT NOT NULL, dominio_id INTEGER NULL, letta INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)');
         Db::setPdo($this->pdo);
     }
 
@@ -56,6 +59,15 @@ final class ImportControllerTest extends TestCase
             $out = (string) ob_get_clean();
         }
         return $out;
+    }
+
+    public function test_pagina_import_nel_layout_con_logout(): void
+    {
+        $_SESSION['utente_id'] = 1;
+        $out = $this->html(fn() => (new ImportController())->mostra());
+        $this->assertStringContainsString('action="/logout"', $out);
+        $this->assertStringContainsString('href="/notifiche"', $out);
+        $this->assertSame(1, substr_count($out, '<html'));
     }
 
     public function test_solo_admin_per_tutte_le_rotte(): void

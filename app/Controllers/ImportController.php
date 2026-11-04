@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Csrf;
+use App\View;
 use App\Services\CsvImporter;
 use App\Services\ImportPreview;
 use Throwable;
@@ -76,6 +77,6 @@ final class ImportController
 
     private function render(?ImportPreview $anteprima, ?array $esito, array $errori): void
     {
-        require dirname(__DIR__, 2) . '/views/import/anteprima.php';
+        View::render('import/anteprima', compact('anteprima', 'esito', 'errori'));
     }
 }

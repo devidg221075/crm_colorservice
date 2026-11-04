@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Csrf;
+use App\View;
 use App\Repos\ClienteRepo;
 
 final class ClientiController
@@ -20,7 +21,7 @@ final class ClientiController
     {
         Auth::requireLogin();
         $clienti = $this->repo->all();
-        require dirname(__DIR__, 2) . '/views/clienti/lista.php';
+        View::render('clienti/lista', ['clienti' => $clienti]);
     }
 
     public function nuovo(): void
@@ -89,7 +90,7 @@ final class ClientiController
 
     private function mostraForm(array $cliente, array $errori): void
     {
-        require dirname(__DIR__, 2) . '/views/clienti/form.php';
+        View::render('clienti/form', ['cliente' => $cliente, 'errori' => $errori]);
     }
 
     private function nonTrovato(): void

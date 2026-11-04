@@ -5,7 +5,6 @@
 /** @var array $clienti */
 /** @var string|null $suggerito */
 /** @var bool $admin */
-use App\Config;
 use App\Csrf;
 use App\Repos\DominioRepo;
 use App\Services\Stato;
@@ -16,14 +15,6 @@ $esistente = !empty($dominio['id']);
 $azione = $esistente ? '/domini/' . (int) $dominio['id'] : '/domini';
 $titolo = $esistente ? 'Modifica dominio' : 'Nuovo dominio';
 ?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $h($titolo) ?> - <?= $h((string) Config::get('app.nome')) ?></title>
-</head>
-<body>
     <h1><?= $h($titolo) ?></h1>
     <?php foreach ($errori as $e): ?>
         <p role="alert"><?= $h($e) ?></p>
@@ -91,5 +82,3 @@ $titolo = $esistente ? 'Modifica dominio' : 'Nuovo dominio';
         <button type="submit">Salva</button>
         <a href="/domini">Annulla</a>
     </form>
-</body>
-</html>

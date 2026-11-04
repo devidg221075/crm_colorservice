@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Auth;
 use App\Csrf;
 use App\HttpException;
+use App\View;
 use App\Repos\ClienteRepo;
 use App\Repos\DominioRepo;
 use App\Repos\TitolareRepo;
@@ -37,7 +38,7 @@ final class DominiController
         ];
         $domini = $this->repo->lista($filtri, $admin);
         $clienti = $this->clienti->all();
-        require $this->vista('lista');
+        View::render('domini/lista', compact('domini', 'clienti', 'filtri', 'admin'));
     }
 
     public function scheda(string $id): void
@@ -51,7 +52,7 @@ final class DominiController
         }
         $titolare = $this->titolari->perDominio((int) $id);
         $suggerito = $this->suggerimento($dominio);
-        require $this->vista('scheda');
+        View::render('domini/scheda', compact('dominio', 'titolare', 'suggerito', 'admin'));
     }
 
     /** Solo admin: costi e margine di un dominio. */
@@ -63,7 +64,7 @@ final class DominiController
             $this->nonTrovato();
             return;
         }
-        require $this->vista('margine');
+        View::render('domini/margine', compact('dominio'));
     }
 
     public function nuovo(): void
@@ -196,12 +197,7 @@ final class DominiController
     {
         $admin = $this->eAdmin();
         $clienti = $this->clienti->all();
-        require $this->vista('form');
-    }
-
-    private function vista(string $nome): string
-    {
-        return dirname(__DIR__, 2) . '/views/domini/' . $nome . '.php';
+        View::render('domini/form', compact('dominio', 'titolare', 'errori', 'clienti', 'suggerito', 'admin'));
     }
 
     private function nonTrovato(): void

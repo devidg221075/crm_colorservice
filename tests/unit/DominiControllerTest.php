@@ -41,6 +41,9 @@ final class DominiControllerTest extends TestCase
             VALUES ('esempio.it', 'aruba', 'attivo', '2020-01-01', 7.5, 12.0, 'EPP-SEGRETO')");
         $this->dominioId = (int) $pdo->lastInsertId();
         $pdo->exec("INSERT INTO titolari (dominio_id, ragione_sociale) VALUES ({$this->dominioId}, 'Titolare Srl')");
+        $pdo->exec('CREATE TABLE notifiche (id INTEGER PRIMARY KEY AUTOINCREMENT, utente_id INTEGER NOT NULL,
+            testo TEXT NOT NULL, dominio_id INTEGER NULL, letta INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)');
         Db::setPdo($pdo);
     }
 
@@ -79,6 +82,18 @@ final class DominiControllerTest extends TestCase
     {
         foreach (['7,50', '12,00', '4,50', '7.5', 'Margine', 'costo_acquisto', 'prezzo_rivendita', 'Costo di acquisto', 'Prezzo di rivendita'] as $s) {
             $this->assertStringNotContainsString($s, $html, "Il campo '$s' non deve comparire per il collaboratore");
+        }
+    }
+
+    public function test_pagine_nel_layout_con_badge_e_logout(): void
+    {
+        $_SESSION['utente_id'] = 1;
+        $c = new DominiController();
+        foreach ([fn() => $c->lista(), fn() => $c->scheda((string) $this->dominioId), fn() => $c->margine((string) $this->dominioId), fn() => $c->nuovo(), fn() => $c->modifica((string) $this->dominioId)] as $f) {
+            $out = $this->html($f);
+            $this->assertStringContainsString('action="/logout"', $out);
+            $this->assertStringContainsString('href="/notifiche"', $out);
+            $this->assertSame(1, substr_count($out, '<html'));
         }
     }
 

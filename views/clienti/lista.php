@@ -1,17 +1,9 @@
 <?php
 /** @var array $clienti */
-use App\Config;
 
 $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+$titolo = 'Clienti';
 ?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Clienti - <?= $h((string) Config::get('app.nome')) ?></title>
-</head>
-<body>
     <h1>Clienti</h1>
     <p><a href="/clienti/nuovo">Nuovo cliente</a></p>
     <?php if ($clienti === []): ?>
@@ -32,5 +24,3 @@ $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
             </tbody>
         </table>
     <?php endif; ?>
-</body>
-</html>

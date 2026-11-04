@@ -3,20 +3,12 @@
 /** @var array|null $titolare */
 /** @var string|null $suggerito */
 /** @var bool $admin */
-use App\Config;
 
 $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 $euro = static fn(mixed $v): string => $v === null ? '-' : number_format((float) $v, 2, ',', '.') . ' EUR';
 $val = static fn(mixed $v): string => ($v === null || $v === '') ? '-' : (string) $v;
+$titolo = (string) $dominio['nome'];
 ?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $h((string) $dominio['nome']) ?> - <?= $h((string) Config::get('app.nome')) ?></title>
-</head>
-<body>
     <h1><?= $h((string) $dominio['nome']) ?></h1>
     <p><a href="/domini">Torna all'elenco</a> | <a href="/domini/<?= (int) $dominio['id'] ?>/modifica">Modifica</a></p>
     <?php if ($suggerito !== null): ?>
@@ -53,5 +45,3 @@ $val = static fn(mixed $v): string => ($v === null || $v === '') ? '-' : (string
             <dt>Margine</dt><dd><?= $h($euro($dominio['margine'] ?? null)) ?></dd>
         </dl>
     <?php endif; ?>
-</body>
-</html>
