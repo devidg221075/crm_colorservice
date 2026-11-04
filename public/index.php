@@ -12,6 +12,7 @@ use App\Controllers\HomeController;
 use App\Controllers\ImportController;
 use App\Controllers\NotificheController;
 use App\Controllers\PrivacyController;
+use App\Controllers\UtentiController;
 use App\Errore500;
 use App\Router;
 
@@ -62,6 +63,13 @@ try {
     $router->add('GET', '/privacy', fn() => $privacy->mostra());
     $router->add('POST', '/privacy/cerca', fn() => $privacy->cerca());
     $router->add('POST', '/privacy/cancella', fn() => $privacy->cancella());
+
+    $utenti = new UtentiController();
+    $router->add('GET', '/utenti', fn() => $utenti->lista());
+    $router->add('GET', '/utenti/nuovo', fn() => $utenti->nuovo());
+    $router->add('POST', '/utenti', fn() => $utenti->crea());
+    $router->add('GET', '/utenti/{id}/modifica', fn(string $id) => $utenti->modifica($id));
+    $router->add('POST', '/utenti/{id}', fn(string $id) => $utenti->aggiorna($id));
 
     $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');
 } catch (Throwable $e) {

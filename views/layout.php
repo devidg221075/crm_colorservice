@@ -29,6 +29,7 @@ $utenteLayout = Auth::user();
             <?php if ($utenteLayout['ruolo'] === 'admin'): ?>
                 <li class="nav-item"><a class="nav-link" href="/import">Import</a></li>
                 <li class="nav-item"><a class="nav-link" href="/privacy">Privacy</a></li>
+                <li class="nav-item"><a class="nav-link" href="/utenti">Utenti</a></li>
             <?php endif; ?>
         </ul>
         <div class="d-flex align-items-center gap-2">

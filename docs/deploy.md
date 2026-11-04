@@ -61,7 +61,7 @@ INSERT INTO utenti (nome, email, password_hash, ruolo, attivo)
 VALUES ('Nome Cognome', 'tua@email.it', 'HASH_GENERATO', 'admin', 1);
 ```
 
-Poi accedi da `/login`. Gli altri utenti (ruolo `collaboratore`) si aggiungono nella stessa tabella `utenti`.
+Poi accedi da `/login`. Gli altri utenti si gestiscono dalla pagina **Utenti** (`/utenti`, voce di menu visibile solo agli admin): da li' l'admin crea utenti (ruolo `admin` o `collaboratore`), li modifica, li disattiva e reimposta la password (minimo 12 caratteri). Non si puo' disattivare o declassare se stessi e deve restare sempre almeno un admin attivo; `cron/crea_admin.php` o SQL servono solo se si perde l'accesso di tutti gli admin.
 
 ## 6. Cron giornaliero per gli alert di scadenza
 
